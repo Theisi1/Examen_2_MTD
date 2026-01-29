@@ -13,10 +13,11 @@ Python 3
 import logging
 from sys import stdout
 from datetime import datetime
+import os
 
 logging.basicConfig(
     level=logging.INFO,
-    format="[%(asctime)s][%(levelname)s] %(message)s",
+    format=f"[%(asctime)s][%(levelname)s][{os.environ.get('USERNAME')}] %(message)s",
     stream=stdout,
     datefmt="%m-%d %H:%M:%S",
 )
@@ -27,8 +28,8 @@ import numpy as np
 
 # ####################################################################
 def gauss_jacobi(
-    *, A: np.array, b: np.array, x0: np.array, tol: float, max_iter: int
-) -> np.array:
+    *, A: np.ndarray, b: np.ndarray, x: np.ndarray, tol: float = 1e-5, max_iter: int = 5
+) -> np.ndarray:
     """Resuelve el sistema de ecuaciones lineales Ax = b mediante el método de Jacobi.
 
     ## Parameters
@@ -41,7 +42,6 @@ def gauss_jacobi(
     ## Return
     ``x``: Vector solución del sistema de ecuaciones lineales.
     """
-
     # --- Validación de los argumentos de la función ---
     if not isinstance(A, np.ndarray):
         logging.debug("Convirtiendo A a numpy array.")
@@ -53,16 +53,14 @@ def gauss_jacobi(
         b = np.array(b, dtype=float)
     assert b.shape[0] == A.shape[0], "El vector b debe ser de tamaño n."
 
-    if not isinstance(x0, np.ndarray):
-        x0 = np.array(x0, dtype=float, ndmin=2).T
-    assert x0.shape[0] == A.shape[0], "El vector x0 debe ser de tamaño n."
+    if not isinstance(x, np.ndarray):
+        x = np.array(x, dtype=float, ndmin=2).T
+    assert x.shape[0] == A.shape[0], "El vector x0 debe ser de tamaño n."
 
     # --- Algoritmo ---
     n = A.shape[0]
-    x = x0.copy()
-
     logging.info(f"i= {0} x: {x.T}")
-    for k in range(1, max_iter):
+    for k in range(1, max_iter + 1):
         x_new = np.zeros((n, 1))  # prealloc
         for i in range(n):
             suma = sum([A[i, j] * x[j] for j in range(n) if j != i])
@@ -70,17 +68,16 @@ def gauss_jacobi(
 
         if np.linalg.norm(x_new - x) < tol:
             return x_new
-
         x = x_new.copy()
-        logging.info(f"i= {k} x: {x.T}")
+    logging.info(f"i= {k} x: {x_new.T}")
 
     return x
 
 
 # ####################################################################
 def gauss_seidel(
-    *, A: np.array, b: np.array, x0: np.array, tol: float, max_iter: int
-) -> np.array:
+    *, A: np.ndarray, b: np.ndarray, x: np.ndarray, tol: float = 1e-5, max_iter: int = 5
+) -> np.ndarray:
     """Resuelve el sistema de ecuaciones lineales Ax = b mediante el método de Gauss-Seidel.
 
     ## Parameters
@@ -104,16 +101,15 @@ def gauss_seidel(
         b = np.array(b, dtype=float)
     assert b.shape[0] == A.shape[0], "El vector b debe ser de tamaño n."
 
-    if not isinstance(x0, np.ndarray):
-        x0 = np.array(x0, dtype=float, ndmin=2).T
-    assert x0.shape[0] == A.shape[0], "El vector x0 debe ser de tamaño n."
+    if not isinstance(x, np.ndarray):
+        x = np.array(x, dtype=float, ndmin=2).T
+    assert x.shape[0] == A.shape[0], "El vector x0 debe ser de tamaño n."
 
     # --- Algoritmo ---
     n = A.shape[0]
-    x = x0.copy()
 
     logging.info(f"i= {0} x: {x.T}")
-    for k in range(1, max_iter):
+    for k in range(1, max_iter + 1):
         x_new = np.zeros((n, 1))  # prealloc
         for i in range(n):
             suma = sum([A[i, j] * x_new[j] for j in range(i) if j != i]) + sum(

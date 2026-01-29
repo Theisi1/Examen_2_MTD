@@ -12,10 +12,11 @@ Python 3
 import logging
 from sys import stdout
 from datetime import datetime
+import os
 
 logging.basicConfig(
     level=logging.INFO,
-    format="[%(asctime)s][%(levelname)s] %(message)s",
+    format=f"[%(asctime)s][%(levelname)s][{os.environ.get('USERNAME')}] %(message)s",
     stream=stdout,
     datefmt="%m-%d %H:%M:%S",
 )

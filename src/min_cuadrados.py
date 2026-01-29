@@ -19,11 +19,11 @@ import os
 
 logging.basicConfig(
     level=logging.INFO,
-    format="[%(asctime)s][%(levelname)s] %(message)s",
+    format=f"[%(asctime)s][%(levelname)s][{os.environ.get('USERNAME')}] %(message)s",
     stream=stdout,
     datefmt="%m-%d %H:%M:%S",
 )
-logging.info(f"{os.getlogin()}| {datetime.now()}")
+logging.info(datetime.now())
 
 import numpy as np
 
